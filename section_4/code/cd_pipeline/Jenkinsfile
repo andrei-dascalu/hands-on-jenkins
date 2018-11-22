@@ -25,6 +25,10 @@ pipeline {
             steps { deploy('dev') }
 		}
 
+		stage("Approve1") {
+            steps { approve() }
+		}
+
 		stage("Test - UAT Dev") {
             steps { runUAT(8888) }
 		}
