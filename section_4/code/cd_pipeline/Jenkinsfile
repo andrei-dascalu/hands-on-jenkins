@@ -29,16 +29,8 @@ pipeline {
             steps { approve() }
 		}
 
-		stage("Test - UAT Dev") {
-            steps { runUAT(8888) }
-		}
-
         stage("Deploy - Stage") {
             steps { deploy('stage') }
-		}
-
-		stage("Test - UAT Stage") {
-            steps { runUAT(88) }
 		}
 
         stage("Approve") {
@@ -48,11 +40,6 @@ pipeline {
         stage("Deploy - Live") {
             steps { deploy('live') }
 		}
-
-		stage("Test - UAT Live") {
-            steps { runUAT(80) }
-		}
-
 	}
 }
 
@@ -102,13 +89,9 @@ def approve() {
 
 }
 
-
 def runUnittests() {
-	sh "pip3 install --no-cache-dir -r ./section_4/code/cd_pipeline/requirements.txt"
-	sh "python3 section_4/code/cd_pipeline/tests/test_flask_app.py"
-}
-
-
-def runUAT(port) {
-	sh "section_4/code/cd_pipeline/tests/runUAT.sh ${port}"
+	withDockerContainer(image: appImage) {
+		sh "pip3 install --no-cache-dir -r ./section_4/code/cd_pipeline/requirements.txt"
+		sh "python3 section_4/code/cd_pipeline/tests/test_flask_app.py"
+	}
 }
