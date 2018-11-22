@@ -9,6 +9,7 @@ pipeline {
 
 	environment {
 		PYTHONPATH = "${WORKSPACE}/section_4/code/cd_pipeline"
+		IMAGE_NAME = "hands-on-jenkins/myapp:${BUILD_NUMBER}"
 	}
 
     stages {
@@ -47,8 +48,10 @@ pipeline {
 // steps
 def buildApp() {
 	dir ('section_4/code/cd_pipeline' ) {
-		def appImage = docker.build("hands-on-jenkins/myapp:${BUILD_NUMBER}")
+		def appImage = docker.build("${IMAGE_NAME}")
 	}
+
+	sh "docker image ls"
 }
 
 
@@ -76,8 +79,7 @@ def deploy(environment) {
 
 	sh "docker ps -f name=${containerName} -q | xargs --no-run-if-empty docker stop"
 	sh "docker ps -a -f name=${containerName} -q | xargs -r docker rm"
-	sh "docker run -d -p ${port}:5000 --name ${containerName} hands-on-jenkins/myapp:${BUILD_NUMBER}"
-
+	sh "docker run -d -p ${port}:5000 --name ${containerName} ${IMAGE_NAME}"
 }
 
 
@@ -90,7 +92,8 @@ def approve() {
 }
 
 def runUnittests() {
-	withDockerContainer(image: "hands-on-jenkins/myapp:${BUILD_NUMBER}") {
+	withDockerContainer(image: "${IMAGE_NAME}") {
+		sh "docker image ls"
 		sh "pip3 install --no-cache-dir -r ./section_4/code/cd_pipeline/requirements.txt"
 		sh "python3 section_4/code/cd_pipeline/tests/test_flask_app.py"
 	}
