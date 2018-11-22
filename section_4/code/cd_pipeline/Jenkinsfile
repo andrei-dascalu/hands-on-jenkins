@@ -50,8 +50,6 @@ def buildApp() {
 	dir ('section_4/code/cd_pipeline' ) {
 		def appImage = docker.build("${IMAGE_NAME}")
 	}
-
-	sh "docker image ls"
 }
 
 
@@ -92,7 +90,7 @@ def approve() {
 }
 
 def runUnittests() {
-	withDockerContainer(image: "${IMAGE_NAME}") {
+	withDockerContainer(image: "python:3.6-alpine") {
 		sh "docker image ls"
 		sh "pip3 install --no-cache-dir -r ./section_4/code/cd_pipeline/requirements.txt"
 		sh "python3 section_4/code/cd_pipeline/tests/test_flask_app.py"
